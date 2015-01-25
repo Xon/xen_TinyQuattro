@@ -490,20 +490,6 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		list($attributes, $css, $extraClass) = $tableOptionsChecker->getValidOptions();
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
-		
-		/***
-			MiniParser options
-		 	Don't use the XenForo formatter here neither...
-		**/
-		$miniParserOptions = array(
-			'htmlspecialcharsForContent' => false,
-			'breakToBr' => true,
-			'renderStates' => array(),
-			//'externalFormatter' => array($this, 'renderTree')
-		);
-
-		//$miniParser =  new Sedo_TinyQuattro_Helper_MiniParser($content, $slaveTags, $tag, $miniParserOptions);
-		//$content = $miniParser->render();
 
 		if(!preg_match('#skin\d{1,2}#', $extraClass, $match))
 		{
