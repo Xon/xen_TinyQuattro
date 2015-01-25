@@ -99,52 +99,52 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 					),
                     'thead' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true),
-                        'allowedChildren' => array('tr' => true),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
                         'disableTextNodes' => 'inAndAfter'
                     ),
                     'tbody' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true),
+                        'allowedParents' => array($tableTag => 1),
                         'disableTextNodes' => 'inAndAfter'
                     ),
                     'tfoot' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true),
-                        'allowedChildren' => array('tr' => true),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
                         'disableTextNodes' => 'inAndAfter'
                     ),
                     'colgroup' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true),
-                        'allowedChildren' => array('col' => true),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('col' => 1),
                         'disableTextNodes' => 'insideContent'
                     ),
                     'caption' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true),
+                        'allowedParents' => array($tableTag => 1),
                         'allowedChildren' => null
                     ),
                     'tr' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => true, 'thead' => true, 'tbody' => true, 'tfoot' => true),
-                        'allowedChildren' => array('td' => true, 'th' => true),
+                        'allowedParents' => array($tableTag => 1, 'thead' => 1, 'tbody' => 1, 'tfoot' => 1),
+                        'allowedChildren' => array('td' => 1, 'th' => 1),
                         'disableTextNodes' => 'insideContent'
                     ),
                     'col' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('colgroup' => true),
+                        'allowedParents' => array('colgroup' => 1),
                         'allowedChildren' => null
                     ),
                     'td' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('tr' => true),
+                        'allowedParents' => array('tr' => 1),
                         'allowedChildren' => null,
                         'disableTextNodes' => 'afterClosing'
                     ),
                     'th' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('tr' => true),
+                        'allowedParents' => array('tr' => 1),
                         'allowedChildren' => null,
                         'disableTextNodes' => 'afterClosing'
                     )
