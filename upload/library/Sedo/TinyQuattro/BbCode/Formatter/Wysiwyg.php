@@ -103,7 +103,61 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 					$tableTag => array(
 						'callback' => array($this, 'renderTagSedoXtable'),
 						'stopLineBreakConversion' => true,
-						'trimLeadingLinesAfter' => 2
+						'trimLeadingLinesAfter' => 2,
+                        'children' => array(
+                            'thead' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true),
+                                'allowedChildren' => array('tr' => true),
+                                'disableTextNodes' => 'inAndAfter'
+                            ),
+                            'tbody' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true),
+                                'allowedChildren' => array('tr' => true),
+                                'disableTextNodes' => 'inAndAfter'
+                            ),
+                            'tfoot' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true),
+                                'allowedChildren' => array('tr' => true),
+                                'disableTextNodes' => 'inAndAfter'
+                            ),
+                            'colgroup' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true),
+                                'allowedChildren' => array('col' => true),
+                                'disableTextNodes' => 'insideContent'
+                            ),
+                            'caption' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true),
+                                'allowedChildren' => null
+                            ),
+                            'tr' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array($tableTag => true, 'thead' => true, 'tbody' => true, 'tfoot' => true),
+                                'allowedChildren' => array('td' => true, 'th' => true),
+                                'disableTextNodes' => 'insideContent'
+                            ),
+                            'col' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array('colgroup' => true),
+                                'allowedChildren' => null
+                            ),
+                            'td' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array('tr' => true),
+                                'allowedChildren' => null,
+                                'disableTextNodes' => 'afterClosing'
+                            ),
+                            'th' => array(
+                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                                'allowedParents' => array('tr' => true),
+                                'allowedChildren' => null,
+                                'disableTextNodes' => 'afterClosing'
+                            )
+                        )
 					)
 				);
 				
@@ -374,61 +428,6 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 		list($attributes, $css, $extraClass) = $tableOptionsChecker->getValidOptions();
 
 		$content = $this->renderSubTree($tag['children'], $rendererStates);
-
-		$slaveTags = array(
-			'thead' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName),
-				'allowedChildren' => array('tr'),
-				'disableTextNodes' => 'inAndAfter'
-			),
-			'tbody' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName),
-				'allowedChildren' => array('tr'),
-				'disableTextNodes' => 'inAndAfter'
-			),
-			'tfoot' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName),
-				'allowedChildren' => array('tr'),
-				'disableTextNodes' => 'inAndAfter'
-			),
-			'colgroup' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName),
-				'allowedChildren' => array('col'),
-				'disableTextNodes' => 'insideContent'
-			),
-			'caption' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName),
-				'allowedChildren' => 'none'
-			),
-			'tr' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array($tagName, 'thead', 'tbody', 'tfoot'),
-				'allowedChildren' => array('td', 'th'),
-				'disableTextNodes' => 'insideContent'
-			),
-			'col' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array('colgroup'),
-				'allowedChildren' => 'none'
-			),
-			'td' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array('tr'),
-				'allowedChildren' => 'none',
-				'disableTextNodes' => 'afterClosing'
-			),
-			'th' => array(
-				'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-				'allowedParents' => array('tr'),
-				'allowedChildren' => 'none',
-				'disableTextNodes' => 'afterClosing'
-			)
-		);
 		
 		/***
 			MiniParser options
@@ -441,8 +440,8 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 			//'externalFormatter' => array($this, 'renderTree')
 		);
 
-		$miniParser =  new Sedo_TinyQuattro_Helper_MiniParser($content, $slaveTags, $tag, $miniParserOptions);
-		$content = $miniParser->render();
+		//$miniParser =  new Sedo_TinyQuattro_Helper_MiniParser($content, $slaveTags, $tag, $miniParserOptions);
+		//$content = $miniParser->render();
 
 		/*In the wysiwyg formatter, we don't use the class, but the data-style to get the skin (easier to manage in the javascript)*/
 		if(preg_match('#skin\d{1,2}#', $extraClass, $match))
