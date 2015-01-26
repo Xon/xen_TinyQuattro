@@ -104,62 +104,60 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 						'callback' => array($this, 'renderTagSedoXtable'),
 						'stopLineBreakConversion' => true,
 						'trimLeadingLinesAfter' => 2,
-                        'children' => array(
-                            'thead' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1),
-                                'allowedChildren' => array('tr' => 1),
-                                'disableTextNodes' => 'inAndAfter'
-                            ),
-                            'tbody' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1),
-                                'allowedChildren' => array('tr' => 1),
-                                'disableTextNodes' => 'inAndAfter'
-                            ),
-                            'tfoot' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1),
-                                'allowedChildren' => array('tr' => 1),
-                                'disableTextNodes' => 'inAndAfter'
-                            ),
-                            'colgroup' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1),
-                                'allowedChildren' => array('col' => 1),
-                                'disableTextNodes' => 'insideContent'
-                            ),
-                            'caption' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1),
-                                'allowedChildren' => null
-                            ),
-                            'tr' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array($tableTag => 1, 'thead' => 1, 'tbody' => 1, 'tfoot' => 1),
-                                'allowedChildren' => array('td' => 1, 'th' => 1),
-                                'disableTextNodes' => 'insideContent'
-                            ),
-                            'col' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array('colgroup' => 1),
-                                'allowedChildren' => null
-                            ),
-                            'td' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array('tr' => 1),
-                                'allowedChildren' => null,
-                                'disableTextNodes' => 'afterClosing'
-                            ),
-                            'th' => array(
-                                'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                                'allowedParents' => array('tr' => 1),
-                                'allowedChildren' => null,
-                                'disableTextNodes' => 'afterClosing'
-                            )
-                        )
-					)
-				);
+                        'allowedChildren' => self::$validRowTags,
+					),
+                    'thead' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
+                        'disableTextNodes' => 'inAndAfter'
+                    ),
+                    'tbody' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'disableTextNodes' => 'inAndAfter'
+                    ),
+                    'tfoot' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
+                        'disableTextNodes' => 'inAndAfter'
+                    ),
+                    'colgroup' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('col' => 1),
+                        'disableTextNodes' => 'insideContent'
+                    ),
+                    'caption' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => null
+                    ),
+                    'tr' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1, 'thead' => 1, 'tbody' => 1, 'tfoot' => 1),
+                        'allowedChildren' => array('td' => 1, 'th' => 1),
+                        'disableTextNodes' => 'insideContent'
+                    ),
+                    'col' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('colgroup' => 1),
+                        'allowedChildren' => null
+                    ),
+                    'td' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('tr' => 1),
+                        'allowedChildren' => null,
+                        'disableTextNodes' => 'afterClosing'
+                    ),
+                    'th' => array(
+                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('tr' => 1),
+                        'allowedChildren' => null,
+                        'disableTextNodes' => 'afterClosing'
+                    )
+                );
 				
 				$this->_xenOptionsMceTable = Sedo_TinyQuattro_Helper_BbCodes::getMceTableXenOptions();
 			}
@@ -416,6 +414,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 		return $content;
 	}
 	
+    static $validRowTags = array('tr' => 1, 'thead' => 1, 'caption' => 1, 'colgroup' => 1, 'tfoot' => 1, 'tbody' => 1, 'thead' => 1);
 	/**
 	 * Mce Table Master Bb Code Renderer
 	 */
@@ -427,7 +426,19 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 		$tableOptionsChecker = new Sedo_TinyQuattro_Helper_TableOptions($tagName, $tagOptions, $this->_xenOptionsMceTable);
 		list($attributes, $css, $extraClass) = $tableOptionsChecker->getValidOptions();
 
-		$content = $this->renderSubTree($tag['children'], $rendererStates);
+		$content = '';
+		foreach($tag['children'] as $row)
+		{
+            if (!isset($row['tag']) || !isset(self::$validRowTags[$row['tag']]))
+            {
+                // invalid table tag, wrap content and dump as a row
+                $content .= '<tr><td>' .$parentClass->renderTagUnparsed($row, $rendererStates) .'</td></tr>';
+            }
+            else
+            {
+                $content .= $this->renderTagSedoXtableSlaveTags($row, $rendererStates);    
+            }
+        }
 
 		/*In the wysiwyg formatter, we don't use the class, but the data-style to get the skin (easier to manage in the javascript)*/
 		if(preg_match('#skin\d{1,2}#', $extraClass, $match))
@@ -450,7 +461,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 	/**
 	 * Mce Table Slave Tags Renderer
 	 */
-	public function renderTagSedoXtableSlaveTags(array $tag, array $rendererStates, $parentClass)
+	public function renderTagSedoXtableSlaveTags(array $tag, array $rendererStates)
 	{
 		$tagName = $tag['tag'];
 		$tagOptions = $tag['option'];
@@ -467,7 +478,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 		/***
 			We're using the formatter of the Miniparser - the "wrapInHtml" function is here public
 		**/
-		$content = $parentClass->renderSubTree($tag['children'], $rendererStates);
+		$content = $this->renderSubTree($tag['children'], $rendererStates);
 
 		if(empty($content))
 		{
@@ -475,7 +486,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Wysiwyg extends XFCP_Sedo_TinyQuattro_Bb
 			$content="&nbsp;";			
 		}
 			
-		return $parentClass->wrapInHtml($openingHtmlTag, $closingHtmlTag, $content);
+		return $this->_wrapInHtml($openingHtmlTag, $closingHtmlTag, $content);
 	}
 }
 //Zend_Debug::dump($parent);

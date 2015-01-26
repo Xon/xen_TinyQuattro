@@ -96,6 +96,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 						'callback' => array($this, 'renderTagSedoXtable'),
 						'stopLineBreakConversion' => true,
 						'trimLeadingLinesAfter' => 2,
+                        'allowedChildren' => self::$validRowTags,
 					),
                     'thead' => array(
                         'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
@@ -478,6 +479,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		return parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 
+    static $validRowTags = array('tr' => 1, 'thead' => 1, 'caption' => 1, 'colgroup' => 1, 'tfoot' => 1, 'tbody' => 1, 'thead' => 1);
 	/**
 	 * Mce Table Master Bb Code Renderer
 	 */
@@ -489,7 +491,19 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		$tableOptionsChecker = new Sedo_TinyQuattro_Helper_TableOptions($tagName, $tagOptions, $this->_xenOptionsMceTable);
 		list($attributes, $css, $extraClass) = $tableOptionsChecker->getValidOptions();
 
-		$content = $this->renderSubTree($tag['children'], $rendererStates);
+		$content = '';
+		foreach($tag['children'] as $row)
+		{
+            if (!isset($row['tag']) || !isset(self::$validRowTags[$row['tag']]))
+            {
+                // invalid table tag, wrap content and dump as a row
+                $content .= '<tr><td>' .$parentClass->renderTagUnparsed($row, $rendererStates) .'</td></tr>';
+            }
+            else
+            {
+                $content .= $this->renderTagSedoXtableSlaveTags($row, $rendererStates);    
+            }
+        }
 
 		if(!preg_match('#skin\d{1,2}#', $extraClass, $match))
 		{
