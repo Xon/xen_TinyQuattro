@@ -1,6 +1,146 @@
 <?php
 class Sedo_TinyQuattro_Helper_BbCodes
 {
+    static $tableTag = null;
+
+
+    public static function renderTagChildrenHelper(XenForo_BbCode_Formatter_Base $caller, array &$tagInfos, array $tag, array $rendererStates)
+    {
+        if (empty($tagInfos[$tag['tag']]))
+        {
+            // unknown tag, use default rendering
+            $content = $caller->renderSubTree($tag['children'], $rendererStates);
+        }
+        else
+        {
+            $tagInfo = $tagInfos[$tag['tag']];   
+            $wrapperPrefix = null;
+            $wrapperSuffix = null;
+            $content = '';
+            foreach($tag['children'] as $row)
+            {
+                if (!isset($row['tag']))
+                {
+                    // raw content, wrap content and dump as a row
+                    if (trim($row) == '')
+                        continue;
+                    if ($wrapperPrefix == null)
+                    {
+                        list($wrapperPrefix, $wrapperSuffix) = Sedo_TinyQuattro_Helper_BbCodes::getTagWrapper($tag['tag'], $tagInfos);
+                    }
+                    $content .= $wrapperPrefix . $row .  $wrapperSuffix ;
+                }
+                else if (!isset($tagInfo['allowedChildren']) || isset($tagInfo['allowedChildren'][$row['tag']]))
+                {
+                    $content .= $caller->renderSubTree(array($row), $rendererStates);    
+                }
+                else
+                {
+                    if ($wrapperPrefix == null)
+                    {
+                        list($wrapperPrefix, $wrapperSuffix) = Sedo_TinyQuattro_Helper_BbCodes::getTagWrapper($tag['tag'], $tagInfos);
+                    }                
+                    // tag is known to be in the wrong spot, wrap content and dump as a row
+                    $content .=  $wrapperPrefix . $caller->renderTagUnparsed($row, $rendererStates) .  $wrapperSuffix ;
+                }
+            }
+        } 
+        return $content;
+    }    
+
+    protected static function getTagWrapperStack($limit, $tagName, array &$tagInfos, array &$tagStack)
+    {
+        if ($limit > 0 && isset($tagInfos[$tagName]['allowedChildren']))
+        {
+            reset($tagInfos[$tagName]['allowedChildren']);
+            $firstChild = key($tagInfos[$tagName]['allowedChildren']);
+            $tagStack[] = $firstChild;
+            self::getTagWrapperStack($limit -1, $firstChild, $tagInfos, $tagStack);
+        }
+    }    
+    
+    public static function getTagWrapper($tagName, array &$tagInfos)
+    {
+        $tagStack = array();
+        self::getTagWrapperStack(20, $tagName,$tagInfos, $tagStack);
+        $prefix = '';
+        $suffix = '';
+        foreach($tagStack as $default)
+        {
+            $prefix = $prefix. '['.$default.']';
+            $suffix = '[/'.$default.']'. $suffix;
+        }
+        return array($prefix,$suffix);
+    }
+    
+	public static function getTableTags(XenForo_BbCode_Formatter_Base $caller, $tableTag = null)
+	{
+        if ($tableTag == null)
+        {
+            if (self::$tableTag === null)
+            {
+                $tableTag = Sedo_TinyQuattro_Helper_BbCodes::getQuattroBbCodeTagName('xtable');
+            }
+            else
+            {
+                $tableTag = self::$tableTag;
+            }
+        }
+        return array(
+					$tableTag => array(
+						'callback' => array($caller, 'renderTagSedoXtable'),
+						'stopLineBreakConversion' => true,
+						'trimLeadingLinesAfter' => 2,
+                        'allowedChildren' => array('thead' => 1, 'tbody' => 1, 'tfoot' => 1, 'colgroup' => 1, 'caption' => 1, 'tr' => 1),
+					),
+                    'thead' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
+                    ),
+                    'tbody' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
+                    ),
+                    'tfoot' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('tr' => 1),
+                    ),
+                    'colgroup' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                        'allowedChildren' => array('col' => 1),
+                    ),
+                    'caption' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1),
+                    ),
+                    'tr' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array($tableTag => 1, 'thead' => 1, 'tbody' => 1, 'tfoot' => 1),
+                        'allowedChildren' => array('td' => 1, 'th' => 1),
+                    ),
+                    'col' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('colgroup' => 1),
+                        'allowedChildren' => null
+                    ),
+                    'td' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('tr' => 1),
+                        'allowedChildren' => null,
+                    ),
+                    'th' => array(
+                        'callback'  => array($caller, 'renderTagSedoXtableSlaveTags'),
+                        'allowedParents' => array('tr' => 1),
+                        'allowedChildren' => null,
+                    )
+                );
+    }
+
+
 	/*
 	 * Check and get custom tagNames for Quattro BbCodes
 	 */

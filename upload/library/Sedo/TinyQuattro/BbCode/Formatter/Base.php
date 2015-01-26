@@ -22,6 +22,11 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 	 */
 	protected $_xenOptionsMceTable;
 	
+    /**
+     * tag definitions for the table tags
+     */
+    protected $_mcetableTags;
+    
 	/**
 	 * Extend tags
 	 */
@@ -91,65 +96,8 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 
 				$this->_mceTableDefaultSkin = XenForo_Template_Helper_Core::styleProperty('quattro_table_skin_default');
 
-				$parentTags += array(
-					$tableTag => array(
-						'callback' => array($this, 'renderTagSedoXtable'),
-						'stopLineBreakConversion' => true,
-						'trimLeadingLinesAfter' => 2,
-                        'allowedChildren' => self::$validRowTags,
-					),
-                    'thead' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1),
-                        'allowedChildren' => array('tr' => 1),
-                        'disableTextNodes' => 'inAndAfter'
-                    ),
-                    'tbody' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1),
-                        'disableTextNodes' => 'inAndAfter'
-                    ),
-                    'tfoot' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1),
-                        'allowedChildren' => array('tr' => 1),
-                        'disableTextNodes' => 'inAndAfter'
-                    ),
-                    'colgroup' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1),
-                        'allowedChildren' => array('col' => 1),
-                        'disableTextNodes' => 'insideContent'
-                    ),
-                    'caption' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1),
-                        'allowedChildren' => null
-                    ),
-                    'tr' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array($tableTag => 1, 'thead' => 1, 'tbody' => 1, 'tfoot' => 1),
-                        'allowedChildren' => array('td' => 1, 'th' => 1),
-                        'disableTextNodes' => 'insideContent'
-                    ),
-                    'col' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('colgroup' => 1),
-                        'allowedChildren' => null
-                    ),
-                    'td' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('tr' => 1),
-                        'allowedChildren' => null,
-                        'disableTextNodes' => 'afterClosing'
-                    ),
-                    'th' => array(
-                        'callback'  => array($this, 'renderTagSedoXtableSlaveTags'),
-                        'allowedParents' => array('tr' => 1),
-                        'allowedChildren' => null,
-                        'disableTextNodes' => 'afterClosing'
-                    )
-                );
+                $this->_mcetableTags = Sedo_TinyQuattro_Helper_BbCodes::getTableTags($this, $tableTag);
+				$parentTags += $this->_mcetableTags;
 				
 				$this->_xenOptionsMceTable = Sedo_TinyQuattro_Helper_BbCodes::getMceTableXenOptions();
 			}
@@ -479,7 +427,6 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		return parent::renderTag($element, $rendererStates, $trimLeadingLines);
 	}
 
-    static $validRowTags = array('tr' => 1, 'thead' => 1, 'caption' => 1, 'colgroup' => 1, 'tfoot' => 1, 'tbody' => 1, 'thead' => 1);
 	/**
 	 * Mce Table Master Bb Code Renderer
 	 */
@@ -491,20 +438,9 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		$tableOptionsChecker = new Sedo_TinyQuattro_Helper_TableOptions($tagName, $tagOptions, $this->_xenOptionsMceTable);
 		list($attributes, $css, $extraClass) = $tableOptionsChecker->getValidOptions();
 
-		$content = '';
-		foreach($tag['children'] as $row)
-		{
-            if (!isset($row['tag']) || !isset(self::$validRowTags[$row['tag']]))
-            {
-                // invalid table tag, wrap content and dump as a row
-                $content .= '<tr><td>' .$parentClass->renderTagUnparsed($row, $rendererStates) .'</td></tr>';
-            }
-            else
-            {
-                $content .= $this->renderTagSedoXtableSlaveTags($row, $rendererStates);    
-            }
-        }
-
+        
+        $content = Sedo_TinyQuattro_Helper_BbCodes::renderTagChildrenHelper($this, $this->_mcetableTags, $tag, $rendererStates);
+        
 		if(!preg_match('#skin\d{1,2}#', $extraClass, $match))
 		{
 			$extraClass .= " $this->_mceTableDefaultSkin";
@@ -550,10 +486,7 @@ class Sedo_TinyQuattro_BbCode_Formatter_Base extends XFCP_Sedo_TinyQuattro_BbCod
 		$openingHtmlTag = "<{$tagName} {$formattedClass} {$attributes} {$formattedCss}>";
 		$closingHtmlTag = "</$tagName>";
 
-		/***
-			We're using the formatter of the Miniparser - the "wrapInHtml" function is here public
-		**/
-		$content = $this->renderSubTree($tag['children'], $rendererStates);
+        $content = Sedo_TinyQuattro_Helper_BbCodes::renderTagChildrenHelper($this, $this->_mcetableTags, $tag, $rendererStates);
 
 		if(empty($content))
 		{
