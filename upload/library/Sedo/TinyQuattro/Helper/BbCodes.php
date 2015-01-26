@@ -89,7 +89,7 @@ class Sedo_TinyQuattro_Helper_BbCodes
         return array(
 					$tableTag => array(
 						'callback' => array($caller, 'renderTagSedoXtable'),
-						'stopLineBreakConversion' => true,
+						'stopLineBreakConversion' => false,
 						'trimLeadingLinesAfter' => 2,
                         'allowedChildren' => array('thead' => 1, 'tbody' => 1, 'tfoot' => 1, 'colgroup' => 1, 'caption' => 1, 'tr' => 1),
 					),
